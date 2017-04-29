@@ -19,21 +19,21 @@ public class Part2Crack {
 		String peerCMD = "PEERS\n";
 		String pID = "";
 		int pSocket = 0;
-		String b1 = "8071ec3d76ba25b1e44ebb68ef7f49d64cb61355aa3194b82670d3456b6fef3f";
-		String b2 = "80d6e13dd6d6bd383aa29eccaefc67ea40d8f7863570cb57e6eaf9ed71f9e012";
-		String b3 = "80400b262a7720103da17f6e48652fa3739e347ecfb18e93d74b9589fd8cfcc6";
+		String b1 = "80b370d237f9e98408995812a5b73e32c35d5bf6ebf025df6b2426103eda51b7";
+		String b2 = "80500146a93cca92b3cc800197657a3170bc8decc379a15dc793f275fb89e1b1";
+		String b3 = "8023be734e56021878a40619dc5450d6bf1d6975cd7be6f975aebcb8d6418f12";
 		
 		// Add Bootstrap peers
 		peerID.add(b1);
 		peerID.add(b2);
 		peerID.add(b3);
-		Public.put(b1,15021);
-		Public.put(b2,15082);
-		Public.put(b3,15075);
+		Public.put(b1,15053);
+		Public.put(b2,15074);
+		Public.put(b3,15049);
 		String mixIP = "160.36.57.98";
-		sockets.add(new Socket(mixIP,15021));
-		sockets.add(new Socket(mixIP,15082));
-		sockets.add(new Socket(mixIP,15075));
+		sockets.add(new Socket(mixIP,15053));
+		sockets.add(new Socket(mixIP,15074));
+		sockets.add(new Socket(mixIP,15049));
 		
 		while(peerID.size() < 240){
 			for(i = 0;i < sockets.size();i++){
@@ -87,8 +87,10 @@ public class Part2Crack {
 			if(Private.containsKey(peerID.get(i))){
 				c1++;
 				prO.write(peerID.get(i) + " " + Private.get(peerID.get(i)) + "\n");
+				prO.flush();
 			}else if(Public.containsKey(peerID.get(i))){
 				puO.write(peerID.get(i) + " " + Public.get(peerID.get(i)) + "\n");
+				puO.flush();
 				c2++;
 			}else{
 				System.out.print("Something went wrong\n");
