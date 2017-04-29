@@ -64,6 +64,8 @@ public class Part2Crack {
 							}
 						}catch(java.lang.NullPointerException e){
 							System.err.print("Caught Some Junk, carry on\n");
+						}catch(java.lang.StringIndexOutOfBoundsException e){
+							System.err.print("Incomplete Line, carrying on\n");
 						}
 					}
 					//readTemp.close();
