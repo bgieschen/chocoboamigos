@@ -20,7 +20,7 @@ public class Part2Gather{
 			raw = puO.readLine();
 			ID = raw.substring(0,64);
 			port = Integer.parseInt(raw.substring(65,70));
-			new Part2GatherThread(ID,port).start();
+			new Part2GatherThread(i,port).start();
 		}
 		pubOut.close();
 	}//END OF MAIN
