@@ -7,7 +7,7 @@ public class Part3Attack{
 	public Part3Attack(){}
 	
 	public static void main(String args[]) throws Exception {
-		int i = 0,j = 0;
+		int i = 0,j = 0,k = 0;
 		int groupCounter=0;
 		int round = 0;
 		int output_id;
@@ -18,12 +18,14 @@ public class Part3Attack{
 		int[][] senders = new int[16][8];
 		int[][] recipients = new int[16][8];
 		int[] final_friends = new int[10];
+		int[] target_senders = new int[5];
 		int[] temp_array;
 		
 		boolean isOffer=true;
 		boolean isAPublicProof=false;
 		boolean isFirstIteration=false;
 		boolean isSecondIteration=false;
+		boolean isRoundFinished=false;
 		
 		String[] target = new String[5];
 		target[0] = "800ab9bccb64c1062061b4f504f7b8f7234390912f84d59d3b36d71b7e7ef932";
@@ -36,7 +38,9 @@ public class Part3Attack{
 		String[][] private_groups = new String[120][8];
 		
 		HashMap<String,Integer> PublicID = new HashMap<String,Integer>();
+		HashMap<String,Integer> PrivateID = new HashMap<String,Integer>();
 		String[] PublicIDArray = new String[120];
+		String[] PrivateIDArray = new String[120];
 		String[] sent_messages = new String[16];
 		String[] public_proofs = new String[16];
 		String[] proofs = new String[16];
@@ -61,19 +65,29 @@ public class Part3Attack{
 		puO.close();
 		pubOut.close();
 		
-		i=0;
+		i=-1;
 		j=0;
 		while(group_parser.hasNextLine()){
 			message = group_parser.next();
 			if(message.equals("NODE")){
+				i++;
 				ID = group_parser.nextLine().substring(1);
-				i=PublicID.get(ID);
+				PrivateID.put(ID,i);
+				PrivateIDArray[i]=ID;
 			} else if(message.equals(">")){
 				private_groups[i][j%8]=group_parser.nextLine().substring(1);
 				j++;
 			}
 		}
-		group_parser.close();	
+		group_parser.close();
+		
+		for(i=0;i<120;i++){
+			Arrays.sort(private_groups[i]);
+		}
+
+		for(i=0;i<5;i++){
+			target_groups[i]=private_groups[PrivateID.get(target[i])];
+		}
 		
 		//initialize HashMap values
 		for(i=0;i<5;i++){
@@ -92,6 +106,7 @@ public class Part3Attack{
 		Arrays.fill(sent_messages,"");
 		Arrays.fill(public_proofs,"");
 		Arrays.fill(proofs,"");
+		Arrays.fill(target_senders,-1);
 		
 		//Parsing from output file
 		try{
@@ -117,6 +132,8 @@ public class Part3Attack{
 					Arrays.fill(sent_messages,"");
 					Arrays.fill(public_proofs,"");
 					Arrays.fill(proofs,"");
+					Arrays.fill(target_senders,-1);
+					isRoundFinished=false;
 				} else if(message.equals("ACK") && isOffer==true){
 				//first ACK message
 					isOffer = false;
@@ -192,18 +209,56 @@ public class Part3Attack{
 					}
 				}
 				
-				/*
-				for(i=0;i<5;i++){
+				//check if the round is finished
+				isRoundFinished=true;
+				for(i=0;i<16;i++){
 					for(j=0;j<8;j++){
-						if(*/
-						
+						if(recipients[i][j]==-1){
+							isRoundFinished=false;
+							break;
+						}
+					}
+					if(isRoundFinished=false){
+						break;
+					}
+				}
+				
+				//see if any senders are targets
+				if(isRoundFinished){
+					for(i=0;i<16;i++){
+						Arrays.sort(recipients[i]);
+						Arrays.sort(senders[i]);
+					}
+					for(i=0;i<16;i++){
+						for(j=0;j<5;j++){
+							if(senders[i].equals(target_groups[j])){
+								target_senders[j]=i;
+							}
+						}
+					}
+					//add recipients
+					for(i=0;i<5;i++){
+						if(target_senders[i]!=-1){
+							temp_array=TargetFriends.get(target[i]);
+							for(j=0;j<16;j++){
+								for(k=0;k<120;k++){
+									if(recipients[j].equals(private_groups[k])){
+										temp_array[k]++;
+										break;
+									}
+								}
+							}
+							TargetFriends.put(target[i],temp_array);
+						}
+					}
+				}		
 			}
 			parser.close();
 		} catch(Exception e){
 			e.printStackTrace();
 		}
 		
-		/*for(i=0;i<5;i++){
+		for(i=0;i<5;i++){
 			max1=0;
 			max2=0;
 			friend1=0;
@@ -222,7 +277,7 @@ public class Part3Attack{
 		}
 			
 		for(i=0;i<5;i++){
-			System.out.println(target[i]+","+PublicID[final_friends[2*i]]+","+PublicID[final_friends[2*i+1]]);
-		}*/
+			System.out.println(target[i]+","+PrivateIDArray[final_friends[2*i]]+","+PrivateIDArray[final_friends[2*i+1]]);
+		}
 	}
 }
