@@ -15,8 +15,6 @@ public class Part3Attack{
 		int current_time=0;
 		int max1, max2;
 		int friend1, friend2;
-		int[][] senders = new int[16][8];
-		int[][] recipients = new int[16][8];
 		int[] final_friends = new int[10];
 		int[] target_senders = new int[5];
 		int[] temp_array;
@@ -36,6 +34,8 @@ public class Part3Attack{
 		
 		String[][] target_groups = new String[5][8];
 		String[][] private_groups = new String[120][8];
+		String[][] senders = new String[16][8];
+		String[][] recipients = new String[16][8];
 		
 		HashMap<String,Integer> PublicID = new HashMap<String,Integer>();
 		HashMap<String,Integer> PrivateID = new HashMap<String,Integer>();
@@ -69,13 +69,14 @@ public class Part3Attack{
 		j=0;
 		while(group_parser.hasNextLine()){
 			message = group_parser.next();
-			if(message.equals("NODE")){
+			if(message.equals("Node")){
 				i++;
+				j=0;
 				ID = group_parser.nextLine().substring(1);
 				PrivateID.put(ID,i);
 				PrivateIDArray[i]=ID;
 			} else if(message.equals(">")){
-				private_groups[i][j%8]=group_parser.nextLine().substring(1);
+				private_groups[i][j]=group_parser.nextLine().substring(1);
 				j++;
 			}
 		}
@@ -99,8 +100,8 @@ public class Part3Attack{
 		//initialize sender and recipient sentinel values
 		for(i=0;i<16;i++){
 			for(j=0;j<8;j++){
-				senders[i][j]=-1;
-				recipients[i][j]=-1;
+				senders[i][j]="";
+				recipients[i][j]="";
 			}
 		}
 		Arrays.fill(sent_messages,"");
@@ -119,14 +120,55 @@ public class Part3Attack{
 				
 				if(message.equals("OFFER") && isOffer==false){
 				//Brand new round, reset
+					System.out.println("new round");
 					round++;
 					isOffer = true;
 					isFirstIteration=true;
 					current_time = timestamp;
+					
+					isRoundFinished=true;
 					for(i=0;i<16;i++){
 						for(j=0;j<8;j++){
-							senders[i][j]=-1;
-							recipients[i][j]=-1;
+							if(recipients[i][j]==""){
+								isRoundFinished=false;
+								break;
+							}
+						}
+					}
+					if(isRoundFinished){	
+						for(i=0;i<16;i++){
+							Arrays.sort(recipients[i]);
+							Arrays.sort(senders[i]);
+						}
+						for(i=0;i<16;i++){
+							for(j=0;j<5;j++){
+								if(Arrays.equals(senders[i],target_groups[j])){
+									System.out.println("yes");
+									target_senders[j]=i;
+								}
+							}
+						}
+						//add recipients
+						for(i=0;i<5;i++){
+							if(target_senders[i]!=-1){
+								temp_array=TargetFriends.get(target[i]);
+								for(j=0;j<16;j++){
+									for(k=0;k<120;k++){
+										if(recipients[j].equals(private_groups[k])){
+											temp_array[k]++;
+											break;
+										}
+									}
+								}
+								TargetFriends.put(target[i],temp_array);
+							}
+						}
+					}
+					
+					for(i=0;i<16;i++){
+						for(j=0;j<8;j++){
+							senders[i][j]="";
+							recipients[i][j]="";
 						}
 					}
 					Arrays.fill(sent_messages,"");
@@ -170,14 +212,16 @@ public class Part3Attack{
 							for(i=0;i<16;i++){
 								if(sent_messages[i].equals("")){
 									sent_messages[i]=message;
-								}
-								if(message.equals(sent_messages[i])){
+									senders[i][0]=PublicIDArray[output_id];
+									break;
+								} else if(message.equals(sent_messages[i])){
 									for(j=0;j<8;j++){
-										if(senders[i][j]==-1){
-											senders[i][j]=output_id;
+										if(senders[i][j]==""){
+											senders[i][j]=PublicIDArray[output_id];
 											break;
 										}
 									}
+									break;
 								}
 							}
 						}
@@ -193,65 +237,23 @@ public class Part3Attack{
 								if(!message.equals("ACK")){	
 									if(proofs[i].equals("")){
 										proofs[i]=message;
-									}
-									if(message.equals(proofs[i])){
+										recipients[i][0]=PublicIDArray[output_id];
+										break;
+									} else if(message.equals(proofs[i])){
 										for(j=0;j<8;j++){
-											if(recipients[i][j]==-1){
-												recipients[i][j]=output_id;
+											if(recipients[i][j]==""){
+												recipients[i][j]=PublicIDArray[output_id];
 												break;
 											}
 										}
+										break;
 									}
 								}
 							}
 						}
 						isAPublicProof=false;
 					}
-				}
-				
-				//check if the round is finished
-				isRoundFinished=true;
-				for(i=0;i<16;i++){
-					for(j=0;j<8;j++){
-						if(recipients[i][j]==-1){
-							isRoundFinished=false;
-							break;
-						}
-					}
-					if(isRoundFinished=false){
-						break;
-					}
-				}
-				
-				//see if any senders are targets
-				if(isRoundFinished){
-					for(i=0;i<16;i++){
-						Arrays.sort(recipients[i]);
-						Arrays.sort(senders[i]);
-					}
-					for(i=0;i<16;i++){
-						for(j=0;j<5;j++){
-							if(senders[i].equals(target_groups[j])){
-								target_senders[j]=i;
-							}
-						}
-					}
-					//add recipients
-					for(i=0;i<5;i++){
-						if(target_senders[i]!=-1){
-							temp_array=TargetFriends.get(target[i]);
-							for(j=0;j<16;j++){
-								for(k=0;k<120;k++){
-									if(recipients[j].equals(private_groups[k])){
-										temp_array[k]++;
-										break;
-									}
-								}
-							}
-							TargetFriends.put(target[i],temp_array);
-						}
-					}
-				}		
+				}	
 			}
 			parser.close();
 		} catch(Exception e){
