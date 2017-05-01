@@ -71,16 +71,18 @@ The Following files are relevant:
 
 Part3Crack.java
 pubToPriv.txt
-[Ben your attack file will go here]
-Part3Friends.csv
+Part3Attack.java
+Part3Friends.csv (Not in the file)
 output.txt
 
 Part3Crack, when run, generates lists, for all the target private nodes, of 
 their 8 connected public nodes. This is needed for our attack method. This 
 is written to the console, so we piped it to a text file, pubToPriv.txt
 
-[Ben your attack file will go here], when run, generates the friends of the
+Part3Attack.java, when run, generates the friends of the
 private peers. This requires the output.txt file and the pubToPriv.txt file
 both be in your working directory for this to run. The solution, like part 2,
 is sent to the console. We piped this to Part3Friends.csv. As with the above
 solutions, this was in csv format.
+
+*****our solution never fully worked, so the Part3Friends.csv is not present*****
