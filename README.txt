@@ -75,7 +75,7 @@ Part3Attack.java
 Part3Friends.csv (Not in the file)
 output.txt
 
-Part3Crack, when run, generates lists, for all the target private nodes, of 
+Part3Crack, when run, generates lists, for all the private nodes, of 
 their 8 connected public nodes. This is needed for our attack method. This 
 is written to the console, so we piped it to a text file, pubToPriv.txt
 
@@ -85,4 +85,11 @@ both be in your working directory for this to run. The solution, like part 2,
 is sent to the console. We piped this to Part3Friends.csv. As with the above
 solutions, this was in csv format.
 
-*****our solution never fully worked, so the Part3Friends.csv is not present*****
+*****our solution herenever fully worked, so the Part3Friends.csv is not present.
+Our reasoning for the solution, there are 32 unique offers each round, the first 16
+must be public, so the next unqiue 16 must be the private. You will see 8 copies of each
+originate from the public nodes, corresponding to the private node they are connected to,
+which we found in Part3Crack.java. For Acks, when 8 ACKs are seen to come from 8 nodes in
+from the 8 public nodes which are identical, the private node they correspond with must be
+the private node who is a reciever for the round.*****
+
